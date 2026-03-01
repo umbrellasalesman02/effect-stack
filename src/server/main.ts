@@ -1,9 +1,10 @@
 import { HttpRouter } from "@effect/platform"
-import { BunHttpServer, BunRuntime } from "@effect/platform-bun"
+import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
 import { RpcSerialization, RpcServer } from "@effect/rpc"
 import { TodoRpcs } from "@shared/rpc/TodoRpcs.js"
 import type { TodoId } from "@shared/types/TodoId.js"
 import { Effect, Layer } from "effect"
+import { createServer } from "node:http"
 import { TodoService } from "./services/todo-service/TodoService.js"
 
 // Create Todo handlers layer
@@ -25,6 +26,8 @@ const RpcProtocol = RpcServer.layerProtocolWebsocket({ path: "/rpc" }).pipe(Laye
 const RpcLive = RpcServer.layer(TodoRpcs).pipe(Layer.provide([TodoHandlersLive, RpcProtocol]))
 
 // Create HTTP server with WebSocket protocol
-const HttpServerLive = HttpRouter.Default.serve().pipe(Layer.provide([RpcLive, BunHttpServer.layer({ port: 3000 })]))
+const HttpServerLive = HttpRouter.Default.serve().pipe(
+	Layer.provide([RpcLive, NodeHttpServer.layer(createServer, { port: 3000 })]),
+)
 
-BunRuntime.runMain(Layer.launch(HttpServerLive))
+NodeRuntime.runMain(Layer.launch(HttpServerLive))

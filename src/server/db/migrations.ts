@@ -1,9 +1,9 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { SqliteMigrator } from "@effect/sql-sqlite-bun"
+import { SqliteMigrator } from "@effect/sql-sqlite-node"
 import { Layer } from "effect"
+import { PlatformLive } from "@server/platform.js"
 import { DbLayer } from "./client.js"
-import { PlatformLive } from "@server/plaform.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

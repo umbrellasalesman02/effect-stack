@@ -10,24 +10,24 @@ A fullstack TypeScript application demonstrating Effect-TS with type-safe RPC co
 
 ### Development
 ```bash
-bun dev              # Run both client (Vite) and server (Bun) with hot reload
-bun dev:client       # Run only the Vite dev server
-bun dev:server       # Run only the Bun server with --watch
+npm run dev          # Run both client (Vite) and server (Node) with hot reload
+npm run dev:client   # Run only the Vite dev server
+npm run dev:server   # Run only the Node server in watch mode
 ```
 
 ### Testing & Quality
 ```bash
-bun test             # Run tests using Bun's test runner
-bun typecheck        # Type check without emitting files
-bun lint             # Check code with Biome
-bun lint:fix         # Auto-fix linting issues
-bun format           # Format code with Biome
-bun format:check     # Check formatting without writing
+npm test             # Run tests using Vitest
+npm run typecheck    # Type check without emitting files
+npm run lint         # Check code with Biome
+npm run lint:fix     # Auto-fix linting issues
+npm run format       # Format code with Biome
+npm run format:check # Check formatting without writing
 ```
 
 ### Build
 ```bash
-bun build            # Type check and build client with Vite
+npm run build        # Type check and build client with Vite
 ```
 
 ## Architecture
@@ -55,7 +55,7 @@ The application uses `@effect/rpc` for type-safe client-server communication:
 Services use the `Effect.Service` pattern (see `TodoService.ts:60`):
 
 - **Default Layer** - Production implementation with SQL database
-  - Requires `MigrationsLayer` and `BunFileSystem.layer`
+  - Requires `MigrationsLayer` and the Node platform layer
   - Persists to SQLite file (configurable via `DATABASE_PATH` env var)
 
 - **TestLayer** - In-memory implementation for unit tests

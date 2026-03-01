@@ -8,24 +8,25 @@ A fullstack TypeScript starter showcasing Effect-TS with type-safe RPC communica
 - **Type-safe RPC** - End-to-end type safety between client and server
 - **WebSocket Protocol** - Real-time bidirectional communication
 - **React 19** - With React Compiler for automatic optimization
-- **Bun Runtime** - Fast server runtime
+- **Node.js Runtime** - Official Effect platform runtime for the backend
 - **Vite** - Lightning-fast development
 - **Tailwind CSS** - Utility-first styling
+- **SQLite** - Backed by `better-sqlite3` through `@effect/sql-sqlite-node`
 
 ## Getting Started
 
 ```bash
 # Install dependencies
-bun install
+npm install
 
 # Run development server (client + server)
-bun dev
+npm run dev
 
 # Run tests
-bun test
+npm test
 
 # Type check
-bun typecheck
+npm run typecheck
 ```
 
 ## Project Structure
@@ -37,7 +38,7 @@ src/
 │   ├── rpc/             # RPC client setup (TodoClient)
 │   ├── App.tsx          # Main app component
 │   └── main.tsx         # React entry point
-├── server/              # Bun backend
+├── server/              # Node backend
 │   ├── db/              # Database layer
 │   │   ├── client.ts    # SQLite client configuration
 │   │   ├── migrations.ts
@@ -56,7 +57,7 @@ src/
 
 - [Effect](https://effect.website/) - Typed functional effects for TypeScript
 - [Effect Atom](https://github.com/tim-smart/effect-atom) - Reactive state management for Effect
-- [Bun](https://bun.sh/) - Bun!
+- [Node.js](https://nodejs.org/) - Runtime for the backend
 - [React](https://react.dev/) - UI library
 - [Motion](https://motion.dev/) - Animation library for React
 - [Vite](https://vite.dev/) - Build tool

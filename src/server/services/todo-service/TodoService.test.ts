@@ -1,8 +1,7 @@
-import { describe, expect, test } from "bun:test"
-import { BunContext } from "@effect/platform-bun"
-import { SqliteClient } from "@effect/sql-sqlite-bun"
-// biome-ignore lint/suspicious/noShadowRestrictedNames: But I really, really want to.
-import { Effect, Layer, String } from "effect"
+import { join } from "node:path"
+import { tmpdir } from "node:os"
+import { describe, expect, test } from "vitest"
+import { Effect, Layer } from "effect"
 import { TodoService } from "./TodoService.js"
 
 /**
@@ -12,18 +11,16 @@ import { TodoService } from "./TodoService.js"
  * This demonstrates Effect's layered architecture - we can test the same
  * service interface with different backing implementations by swapping layers.
  *
- * Run with: bun test
+ * Run with: npm test
  */
 function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, never, never>) {
-	const layer = getLayer()
-
 	describe(`TodoService (${name})`, () => {
 		test("should start with empty todos", async () => {
 			const program = Effect.gen(function* () {
 				const todos = yield* TodoService.getTodos()
 
 				expect(todos).toEqual([])
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -36,7 +33,7 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 				expect(todo.completed).toBe(false)
 				expect(typeof todo.id).toBe("number")
 				expect(todo.createdAt).toBeDefined()
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -51,7 +48,7 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 				expect(todos.length).toBe(2)
 				expect(todos[0].title).toBe("Second todo") // Newest first
 				expect(todos[1].title).toBe("First todo")
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -68,7 +65,7 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 
 				const toggledAgain = yield* TodoService.toggleTodo(todo.id)
 				expect(toggledAgain.completed).toBe(false)
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -82,7 +79,7 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 
 				const todos = yield* TodoService.getTodos()
 				expect(todos.length).toBe(0)
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -98,7 +95,7 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 				expect(todos[0].id).toBe(third.id)
 				expect(todos[1].id).toBe(second.id)
 				expect(todos[2].id).toBe(first.id)
-			}).pipe(Effect.provide(layer))
+			}).pipe(Effect.provide(getLayer()))
 
 			await Effect.runPromise(program)
 		})
@@ -107,19 +104,11 @@ function testTodoService(name: string, getLayer: () => Layer.Layer<TodoService, 
 
 // Test SQLite implementation with all required dependencies
 // Create a fresh layer for each test to ensure test isolation
-testTodoService("SQLite", () =>
-	TodoService.Default.pipe(
-		Layer.provide(
-			SqliteClient.layer({
-				filename: ":memory:", // Each test gets a fresh in-memory database
-				transformQueryNames: String.camelToSnake,
-				transformResultNames: String.snakeToCamel,
-			}),
-		),
-		Layer.provide(BunContext.layer),
-		Layer.orDie, // Convert errors to defects for testing
-	),
-)
+testTodoService("SQLite", () => {
+	process.env.DATABASE_PATH = join(tmpdir(), `todo-service-${crypto.randomUUID()}.db`)
+
+	return TodoService.Default.pipe(Layer.orDie)
+})
 
 // Test in-memory implementation
 testTodoService("InMemory", () => TodoService.TestLayer)

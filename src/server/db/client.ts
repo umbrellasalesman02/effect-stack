@@ -1,10 +1,10 @@
-import { SqliteClient } from "@effect/sql-sqlite-bun"
+import { SqliteClient } from "@effect/sql-sqlite-node"
 import { Config, Effect, Layer } from "effect"
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Effect String module
 import * as String from "effect/String"
 
 /**
- * SQLite database client layer for Bun runtime.
+ * SQLite database client layer for Node runtime.
  *
  * Features:
  * - Configurable database path via DATABASE_PATH env var (defaults to todos.db)

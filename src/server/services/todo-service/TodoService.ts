@@ -1,8 +1,7 @@
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem"
 import { SqlClient } from "@effect/sql"
 import type { SqlError } from "@effect/sql/SqlError"
 import { DbLayer } from "@server/db/client.js"
-import { MigrationsLayer, MigrationsLive } from "@server/db/migrations.js"
+import { MigrationsLive } from "@server/db/migrations.js"
 import { Todo, TodoFromDb } from "@shared/types/Todo.js"
 import type { TodoId } from "@shared/types/TodoId.js"
 import { TodoNotFoundError, TodoValidationError, UnknownTodoServiceError } from "@shared/types/TodoServiceError.js"
@@ -47,7 +46,7 @@ const decodeTodoRows = (rows: unknown): Effect.Effect<readonly Todo[], TodoValid
  *
  * **Available Layers:**
  * - `TodoService.Default` - Provides a SQLite implementation for production use.
- *   Requires {@link MigrationsLayer} and {@link BunFileSystem.layer} dependencies.
+ *   Requires the database and Node platform migration layers.
  *   Data is persisted to a SQLite database file.
  *
  * - `TodoService.TestLayer` - Provides an in-memory implementation for testing.
@@ -78,7 +77,7 @@ export class TodoService extends Effect.Service<TodoService>()("TodoService", {
 			addTodo: (title: string) =>
 				Effect.gen(function* () {
 					const decoded =
-						yield* sql<Todo>`INSERT INTO todos ${sql.insert({ title, completed: false })} RETURNING *`.pipe(
+						yield* sql<Todo>`INSERT INTO todos ${sql.insert({ title, completed: 0 })} RETURNING *`.pipe(
 							handleSqlError,
 							Effect.flatMap(decodeTodoRows),
 						)
